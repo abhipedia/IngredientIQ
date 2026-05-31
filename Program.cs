@@ -15,8 +15,6 @@ builder.Services.AddDbContext<IngredientIQDbContext>(options =>
 
 // --- Services ---
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IScoringService, ScoringService>();
-builder.Services.AddScoped<IIngredientMatchingService, IngredientMatchingService>();
 builder.Services.AddScoped<IOcrService, OcrService>();
 builder.Services.AddSingleton<IngredientTextParser>();
 builder.Services.AddScoped<IAiAnalysisService, AiAnalysisService>();
