@@ -1,0 +1,62 @@
+@page
+@model IngredientIQ.Pages.Scan.ReviewModel
+@{
+    ViewData["Title"] = "Review Ingredients";
+    ViewData["ScanStep"] = 2;
+}
+
+<partial name="_ScanSteps" />
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="mb-3">📝 Review Extracted Ingredients</h2>
+
+        @{
+            var conf = int.TryParse(Model.OcrConfidence, out var c) ? c : 0;
+            var badgeClass = conf >= 75 ? "bg-success" : conf > 0 ? "bg-warning text-dark" : "bg-secondary";
+        }
+        <p>
+            OCR Confidence:
+            <span class="badge @badgeClass">@conf%</span>
+            @if (conf > 0 && conf < 75)
+            {
+                <span class="text-warning ms-2">⚠️ Low confidence — please review carefully.</span>
+            }
+            else if (conf == 0)
+            {
+                <span class="text-muted ms-2">Manual entry mode.</span>
+            }
+        </p>
+
+        <form method="post">
+            <div class="mb-3">
+                <label asp-for="IngredientsText" class="form-label">Ingredients (one per line)</label>
+                <textarea asp-for="IngredientsText" class="form-control font-monospace" rows="10"
+                          placeholder="Enter one ingredient per line..."></textarea>
+                <span asp-validation-for="IngredientsText" class="text-danger"></span>
+                <small class="text-muted">Edit, add, or remove ingredients as needed.</small>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ProductCategory" class="form-label">Product Category</label>
+                <select asp-for="ProductCategory" class="form-select">
+                    <option value="Food">Food</option>
+                    <option value="Skincare">Skincare</option>
+                    <option value="Supplement">Supplement</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-success btn-lg w-100">
+                Calculate KleenScore →
+            </button>
+        </form>
+
+        <div class="mt-3">
+            <a asp-page="/Scan/Upload" class="text-muted">← Start Over</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/scan.js" asp-append-version="true"></script>
+}

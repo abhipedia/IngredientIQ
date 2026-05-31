@@ -1,0 +1,376 @@
+@page "{id:guid?}"
+@model IngredientIQ.Pages.Scan.ResultModel
+@{
+    ViewData["Title"] = "KleenScore Result";
+    ViewData["ScanStep"] = 3;
+}
+
+<partial name="_ScanSteps" />
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+    <a asp-page="/Scan/Upload" class="btn btn-outline-secondary">Scan Another Product</a>
+    return;
+}
+
+@if (Model.AiAnalysis is null)
+{
+    <div class="alert alert-warning">No results available.</div>
+    <a asp-page="/Scan/Upload" class="btn btn-outline-secondary">Scan a Product</a>
+    return;
+}
+
+@* ─── Scanned Ingredients Summary ─── *@
+<div class="mb-4">
+    <h5>📝 Scanned Ingredients (@Model.IngredientNames.Count)</h5>
+    <p class="text-muted small">
+        @string.Join(", ", Model.IngredientNames) — <em>@Model.ProductCategory</em>
+    </p>
+</div>
+
+@if (Model.AiAnalysis.Success)
+{
+    var ai = Model.AiAnalysis;
+    var scoreClass = ai.OverallScore >= 70 ? "score-green" : ai.OverallScore >= 40 ? "score-yellow" : "score-red";
+    var emoji = ai.OverallScore >= 70 ? "😊" : ai.OverallScore >= 40 ? "😐" : "😟";
+    var label = ai.OverallScore >= 70 ? "EXCELLENT" : ai.OverallScore >= 40 ? "MODERATE" : "POOR";
+
+    @* ─── Score Gauge ─── *@
+    <div class="text-center mb-4">
+        <div class="score-gauge @scoreClass mx-auto">
+            <span class="score-number">@ai.OverallScore</span>
+            <span class="score-label">@label</span>
+        </div>
+        <div class="mt-2" style="font-size:2rem;">@emoji</div>
+    </div>
+
+    @* ─── Summary ─── *@
+    <div class="mb-4">
+        <h5>📋 Summary</h5>
+        <p>@ai.Summary</p>
+    </div>
+
+    @* ─── Per-Ingredient Analysis ─── *@
+    @if (ai.IngredientAnalysis.Count > 0)
+    {
+        <h5 class="mb-3">🧪 Ingredient-by-Ingredient Analysis</h5>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Ingredient</th>
+                        <th>Rating</th>
+                        <th>Why</th>
+                        <th>Risk Flags</th>
+                        <th>Verdict</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (var i = 0; i < ai.IngredientAnalysis.Count; i++)
+                    {
+                        var item = ai.IngredientAnalysis[i];
+                        var ratingClass = item.SafetyRating >= 7 ? "text-success fw-bold"
+                                        : item.SafetyRating >= 4 ? "text-warning fw-bold"
+                                        : "text-danger fw-bold";
+                        var verdictBadge = item.Verdict switch
+                        {
+                            "safe" => "bg-success",
+                            "use-with-caution" => "bg-warning text-dark",
+                            _ => "bg-danger"
+                        };
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td><strong>@item.Name</strong></td>
+                            <td class="@ratingClass">@item.SafetyRating/10</td>
+                            <td class="small">@item.Why</td>
+                            <td>
+                                @foreach (var flag in item.RiskFlags.Where(f => f != "none"))
+                                {
+                                    var flagColor = flag switch
+                                    {
+                                        "carcinogen" => "bg-danger",
+                                        "endocrine disruptor" => "bg-danger",
+                                        "allergen" => "bg-warning text-dark",
+                                        _ => "bg-secondary"
+                                    };
+                                    <span class="badge @flagColor badge-risk">@flag</span>
+                                }
+                                @if (item.RiskFlags.All(f => f == "none"))
+                                {
+                                    <span class="text-muted small">—</span>
+                                }
+                            </td>
+                            <td><span class="badge @verdictBadge">@item.Verdict</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @* ─── Regulatory Flags ─── *@
+    @if (ai.RegulatoryFlags.Count > 0)
+    {
+        <div class="mb-4">
+            <h5>🏛️ Regulatory Flags</h5>
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered">
+                    <thead class="table-light">
+                        <tr><th>Ingredient</th><th>Body</th><th>Status</th><th>Detail</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var flag in ai.RegulatoryFlags)
+                        {
+                            var sc = flag.Status.Contains("Banned", StringComparison.OrdinalIgnoreCase) ? "text-danger fw-bold"
+                                   : flag.Status.Contains("Restricted", StringComparison.OrdinalIgnoreCase) ? "text-warning fw-bold" : "";
+                            <tr>
+                                <td>@flag.Ingredient</td>
+                                <td><span class="badge bg-secondary">@flag.Body</span></td>
+                                <td class="@sc">@flag.Status</td>
+                                <td class="small text-muted">@flag.Detail</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    @* ─── Allergen Audit ─── *@
+    @if (ai.AllergenAudit.HiddenAllergens.Count > 0 || ai.AllergenAudit.DeclaredAllergens.Count > 0 || ai.AllergenAudit.CrossContaminationRisks.Count > 0)
+    {
+        <div class="mb-4">
+            <h5>🚨 Allergen Audit</h5>
+
+            @if (ai.AllergenAudit.DeclaredAllergens.Count > 0)
+            {
+                <p class="mb-2">
+                    <strong>Declared Allergens:</strong>
+                    @foreach (var a in ai.AllergenAudit.DeclaredAllergens)
+                    {
+                        <span class="badge bg-info me-1">@a</span>
+                    }
+                </p>
+            }
+
+            @if (ai.AllergenAudit.HiddenAllergens.Count > 0)
+            {
+                <div class="alert alert-danger py-2 mb-2">
+                    <strong>⚠️ Hidden Allergens Detected:</strong>
+                    <div class="table-responsive mt-2">
+                        <table class="table table-sm table-bordered mb-0">
+                            <thead class="table-light">
+                                <tr><th>Ingredient</th><th>Allergen</th><th>Explanation</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var h in ai.AllergenAudit.HiddenAllergens)
+                                {
+                                    <tr>
+                                        <td class="fw-bold">@h.Ingredient</td>
+                                        <td><span class="badge bg-danger">@h.AllergenType</span></td>
+                                        <td class="small">@h.Explanation</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+
+            @if (ai.AllergenAudit.CrossContaminationRisks.Count > 0)
+            {
+                <div class="alert alert-warning py-2 mb-0">
+                    <strong>Cross-Contamination Risks:</strong>
+                    <ul class="mb-0 mt-1">
+                        @foreach (var risk in ai.AllergenAudit.CrossContaminationRisks)
+                        {
+                            <li class="small">@risk</li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    }
+
+    @* ─── Label Compliance ─── *@
+    @if (ai.LabelCompliance.Count > 0)
+    {
+        <div class="mb-4">
+            <h5>📋 Label Compliance Issues</h5>
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered">
+                    <thead class="table-light">
+                        <tr><th>Severity</th><th>Issue</th><th>Regulation</th><th>Recommendation</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var lc in ai.LabelCompliance)
+                        {
+                            var sevBadge = lc.Severity switch
+                            {
+                                "Critical" => "bg-danger",
+                                "Major" => "bg-warning text-dark",
+                                _ => "bg-secondary"
+                            };
+                            <tr>
+                                <td><span class="badge @sevBadge">@lc.Severity</span></td>
+                                <td>@lc.Issue</td>
+                                <td class="small text-muted font-monospace">@lc.Regulation</td>
+                                <td class="small">@lc.Recommendation</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    @* ─── Interactions ─── *@
+    @if (ai.Interactions.Count > 0)
+    {
+        <div class="mb-4">
+            <h5>🔗 Ingredient Interactions</h5>
+            <ul class="mb-0">
+                @foreach (var interaction in ai.Interactions)
+                {
+                    <li>@interaction</li>
+                }
+            </ul>
+        </div>
+    }
+
+    @* ─── Clean Label ─── *@
+    <div class="mb-4">
+        <h5>🏷️ Clean Label Assessment</h5>
+        @{
+            var clBadge = ai.CleanLabel.Rating switch
+            {
+                "Clean" => "bg-success",
+                "Mostly Clean" => "bg-info",
+                "Moderate" => "bg-warning text-dark",
+                _ => "bg-danger"
+            };
+        }
+        <p>Rating: <span class="badge @clBadge fs-6">@ai.CleanLabel.Rating</span></p>
+        @if (ai.CleanLabel.CertificationEligibility.Count > 0)
+        {
+            <p class="mb-1"><strong>Certification Eligibility:</strong></p>
+            <div class="d-flex flex-wrap gap-1 mb-2">
+                @foreach (var cert in ai.CleanLabel.CertificationEligibility)
+                {
+                    <span class="badge bg-outline-secondary border text-dark">@cert</span>
+                }
+            </div>
+        }
+        <p class="small text-muted mb-0">@ai.CleanLabel.Reasoning</p>
+    </div>
+
+    @* ─── Population Warnings ─── *@
+    @if (ai.PopulationWarnings.Count > 0)
+    {
+        <div class="mb-4">
+            <h5>👶 Population Warnings</h5>
+            <div class="alert alert-warning py-2">
+                <ul class="mb-0">
+                    @foreach (var w in ai.PopulationWarnings)
+                    {
+                        <li>@w</li>
+                    }
+                </ul>
+            </div>
+        </div>
+    }
+
+    @* ─── Alternatives ─── *@
+    @if (ai.Alternatives.Count > 0)
+    {
+        <div class="mb-4">
+            <h5>🔄 Safer Alternatives</h5>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead class="table-light">
+                        <tr><th>Replace</th><th>With</th><th>Why</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var alt in ai.Alternatives)
+                        {
+                            <tr>
+                                <td class="text-danger">@alt.ForIngredient</td>
+                                <td class="text-success fw-bold">@alt.Alternative</td>
+                                <td class="small text-muted">@alt.Reason</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    <div class="card-footer small text-muted mb-4">
+        Analysis powered by AI. Cross-referenced with FDA, EU SCCS, IARC, EWG, COSMOS, and other regulatory databases.
+        This is informational only — verify with official sources.
+    </div>
+}
+else if (!string.IsNullOrWhiteSpace(Model.AiAnalysis.ManualPrompt))
+{
+    @* ─── Manual Prompt Mode ─── *@
+    <div class="card border-info mb-4">
+        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">🤖 AI Ingredient Analysis — Manual Mode</h5>
+            <button class="btn btn-sm btn-light" onclick="copyPrompt()">📋 Copy Prompt</button>
+        </div>
+        <div class="card-body">
+            <p class="mb-3">AI analysis is not configured. Follow these steps to get your analysis:</p>
+            <ol class="mb-3">
+                <li>Click <strong>📋 Copy Prompt</strong> above to copy the analysis prompt</li>
+                <li>Open any AI assistant:
+                    <a href="https://chatgpt.com" target="_blank" rel="noopener" class="btn btn-sm btn-outline-dark mx-1">ChatGPT</a>
+                    <a href="https://claude.ai" target="_blank" rel="noopener" class="btn btn-sm btn-outline-dark mx-1">Claude</a>
+                    <a href="https://gemini.google.com" target="_blank" rel="noopener" class="btn btn-sm btn-outline-dark mx-1">Gemini</a>
+                </li>
+                <li>Paste the prompt and press Enter</li>
+                <li>Review the AI's per-ingredient safety analysis with cited sources</li>
+            </ol>
+            <pre id="aiPromptText" class="bg-light p-3 rounded small" style="white-space:pre-wrap; max-height:400px; overflow-y:auto;">@Model.AiAnalysis.ManualPrompt</pre>
+        </div>
+        <div class="card-footer small text-muted">
+            This prompt is engineered to minimize hallucination — it requires the AI to cite specific
+            regulatory sources and explicitly state uncertainty rather than guess.
+        </div>
+    </div>
+
+    <script>
+        function copyPrompt() {
+            const text = document.getElementById('aiPromptText').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => btn.textContent = '📋 Copy Prompt', 2000);
+            });
+        }
+    </script>
+}
+else
+{
+    <div class="alert alert-secondary mb-4">
+        <strong>🤖 AI Analysis:</strong> @(Model.AiAnalysis.Error ?? "Unavailable.")
+    </div>
+}
+
+<div class="d-flex gap-2 flex-wrap mb-4">
+    <a asp-page="/Scan/Upload" class="btn btn-success">🔍 Scan Another</a>
+    @if (User.Identity?.IsAuthenticated == true && Model.ScanId.HasValue)
+    {
+        <a asp-page="/History/Index" class="btn btn-outline-primary">📜 View History</a>
+    }
+    @if (User.Identity?.IsAuthenticated != true)
+    {
+        <a asp-page="/Account/Register" class="btn btn-outline-primary">Register to Save History</a>
+    }
+</div>
+
+<div class="alert alert-light border small">
+    ⚠️ <strong>Disclaimer:</strong> This is not medical advice. KleenScore provides informational analysis only.
+    Consult a healthcare professional for medical decisions.
+</div>

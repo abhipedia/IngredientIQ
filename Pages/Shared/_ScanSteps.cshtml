@@ -1,0 +1,21 @@
+@* Scan flow step indicator — pass ViewData["ScanStep"] = 1, 2, or 3 *@
+@{
+    var step = (int)(ViewData["ScanStep"] ?? 1);
+}
+
+<div class="scan-steps">
+    <div class="scan-step @(step == 1 ? "active" : "completed")">
+        <span class="scan-step-number">@(step > 1 ? "✓" : "1")</span>
+        <span>Upload</span>
+    </div>
+    <div class="scan-step-connector"></div>
+    <div class="scan-step @(step == 2 ? "active" : step > 2 ? "completed" : "")">
+        <span class="scan-step-number">@(step > 2 ? "✓" : "2")</span>
+        <span>Review</span>
+    </div>
+    <div class="scan-step-connector"></div>
+    <div class="scan-step @(step == 3 ? "active" : "")">
+        <span class="scan-step-number">3</span>
+        <span>Results</span>
+    </div>
+</div>

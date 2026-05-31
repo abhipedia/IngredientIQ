@@ -1,0 +1,49 @@
+@page
+@model IngredientIQ.Pages.Admin.DashboardModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<h2 class="mb-4">📊 Admin Dashboard</h2>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card text-bg-primary">
+            <div class="card-body stats-card">
+                <div class="stats-number">@Model.TotalIngredients</div>
+                <div>Total Ingredients</div>
+                <small>@Model.ActiveIngredients active · @Model.ReviewIngredients pending review</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-bg-success">
+            <div class="card-body stats-card">
+                <div class="stats-number">@Model.TotalScans</div>
+                <div>Total Scans</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-bg-info">
+            <div class="card-body stats-card">
+                <div class="stats-number">@Model.TotalUsers</div>
+                <div>Registered Users</div>
+                <small>Avg Score: @Model.AverageScore.ToString("F1")</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <a asp-page="/Admin/Ingredients/Index" class="btn btn-outline-primary w-100 py-3">
+            🧪 Manage Ingredients
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a asp-page="/Admin/ReviewQueue" class="btn btn-outline-warning w-100 py-3">
+            📝 Review Queue <span class="badge bg-warning text-dark">@Model.ReviewIngredients</span>
+        </a>
+    </div>
+</div>

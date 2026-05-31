@@ -1,0 +1,75 @@
+@page "{id:guid}"
+@model IngredientIQ.Pages.Admin.Ingredients.EditModel
+@{
+    ViewData["Title"] = "Edit Ingredient";
+}
+
+<h2 class="mb-4">✏️ Edit Ingredient</h2>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<form method="post" class="row g-3">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="col-md-6">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="CasNumber" class="form-label">CAS Number</label>
+        <input asp-for="CasNumber" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label asp-for="SafetyRating" class="form-label">Safety Rating (1-10)</label>
+        <input asp-for="SafetyRating" class="form-control" type="number" min="1" max="10" />
+        <span asp-validation-for="SafetyRating" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="Category" class="form-label"></label>
+        <select asp-for="Category" asp-items="Html.GetEnumSelectList<IngredientIQ.Domain.Enums.IngredientCategory>()"
+                class="form-select"></select>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Status" class="form-label"></label>
+        <select asp-for="Status" asp-items="Html.GetEnumSelectList<IngredientIQ.Domain.Enums.IngredientStatus>()"
+                class="form-select"></select>
+    </div>
+
+    <div class="col-12">
+        <label class="form-label">Risk Tags</label>
+        <div class="d-flex flex-wrap gap-3">
+            @foreach (var tag in Enum.GetValues<IngredientIQ.Domain.Enums.RiskTag>().Where(t => t != IngredientIQ.Domain.Enums.RiskTag.None))
+            {
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="SelectedRiskTags" value="@tag"
+                           id="tag_@tag" @(Model.SelectedRiskTags.Contains(tag) ? "checked" : "") />
+                    <label class="form-check-label" for="tag_@tag">@tag</label>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="SynonymsRaw" class="form-label">Synonyms (one per line)</label>
+        <textarea asp-for="SynonymsRaw" class="form-control" rows="4"></textarea>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="SourceReferencesRaw" class="form-label">Source References (one per line)</label>
+        <textarea asp-for="SourceReferencesRaw" class="form-control" rows="4"></textarea>
+    </div>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Update</button>
+        <a asp-page="/Admin/Ingredients/Index" class="btn btn-secondary ms-2">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

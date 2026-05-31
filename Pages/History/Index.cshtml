@@ -1,0 +1,83 @@
+@page
+@model IngredientIQ.Pages.History.IndexModel
+@{
+    ViewData["Title"] = "Scan History";
+}
+
+<h2 class="mb-4">📋 Your Scan History</h2>
+
+@if (Model.Scans.Count == 0)
+{
+    <div class="alert alert-info">
+        You haven't scanned any products yet.
+        <a asp-page="/Scan/Upload" class="alert-link">Scan your first product!</a>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Date</th>
+                    <th>Product Category</th>
+                    <th>KleenScore</th>
+                    <th>Category</th>
+                    <th>OCR Confidence</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var scan in Model.Scans)
+                {
+                    var badgeClass = scan.ScoreCategory switch
+                    {
+                        IngredientIQ.Domain.Enums.ScoreCategory.Green => "bg-success",
+                        IngredientIQ.Domain.Enums.ScoreCategory.Yellow => "bg-warning text-dark",
+                        _ => "bg-danger"
+                    };
+                    <tr>
+                        <td>@scan.CreatedAt.ToString("MMM dd, yyyy h:mm tt")</td>
+                        <td>@(scan.ProductCategory ?? "—")</td>
+                        <td>
+                            @if (scan.KleenScore > 0)
+                            {
+                                <strong>@scan.KleenScore</strong><span class="text-muted">/100</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Manual</span>
+                            }
+                        </td>
+                        <td><span class="badge @badgeClass">@scan.ScoreCategory</span></td>
+                        <td>@scan.OcrConfidence.ToString("F0")%</td>
+                        <td>
+                            <a asp-page="/Scan/Result" asp-route-id="@scan.Id"
+                               class="btn btn-sm btn-outline-primary">View</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(Model.CurrentPage <= 1 ? "disabled" : "")">
+                    <a class="page-link" asp-page="/History/Index" asp-route-page="@(Model.CurrentPage - 1)">Previous</a>
+                </li>
+                @for (var i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                        <a class="page-link" asp-page="/History/Index" asp-route-page="@i">@i</a>
+                    </li>
+                }
+                <li class="page-item @(Model.CurrentPage >= Model.TotalPages ? "disabled" : "")">
+                    <a class="page-link" asp-page="/History/Index" asp-route-page="@(Model.CurrentPage + 1)">Next</a>
+                </li>
+            </ul>
+        </nav>
+    }
+}

@@ -1,0 +1,33 @@
+@page
+@model IngredientIQ.Pages.Account.ProfileModel
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="mb-4">Your Profile</h2>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <p><strong>Name:</strong> @Model.FullName</p>
+                <p><strong>Email:</strong> @Model.Email</p>
+            </div>
+        </div>
+
+        @if (Model.Saved)
+        {
+            <div class="alert alert-success">Allergen preferences saved.</div>
+        }
+
+        <form method="post">
+            <div class="mb-3">
+                <label asp-for="AllergensText" class="form-label">Your Allergens</label>
+                <input asp-for="AllergensText" class="form-control"
+                       placeholder="e.g. peanut, dairy, gluten" />
+                <small class="text-muted">Comma-separated list. Matching ingredients will reduce your score.</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Allergens</button>
+        </form>
+    </div>
+</div>

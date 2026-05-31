@@ -1,0 +1,38 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Know Your Ingredients";
+}
+
+<section class="hero-section">
+    <h1>Know Your Ingredients</h1>
+    <p class="lead">Scan. Analyze. Decide.</p>
+    <a asp-page="/Scan/Upload" class="btn btn-success btn-lg mt-3 px-5">
+        🔍 Scan a Product
+    </a>
+</section>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="feature-card card h-100">
+            <div class="feature-icon">📷</div>
+            <h5>Upload or Capture</h5>
+            <p class="text-muted">Take a photo of any product's ingredient label or type them in manually.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="feature-card card h-100">
+            <div class="feature-icon">🧪</div>
+            <h5>AI Analysis</h5>
+            <p class="text-muted">Each ingredient is analyzed by AI using FDA, EU, IARC, and other regulatory sources.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="feature-card card h-100">
+            <div class="feature-icon">✅</div>
+            <h5>Get Your Score</h5>
+            <p class="text-muted">Receive a KleenScore (0–100) with detailed breakdown and risk highlights.</p>
+        </div>
+    </div>
+</div>
+

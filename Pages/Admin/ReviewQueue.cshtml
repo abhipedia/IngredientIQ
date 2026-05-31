@@ -1,0 +1,61 @@
+@page
+@model IngredientIQ.Pages.Admin.ReviewQueueModel
+@{
+    ViewData["Title"] = "Review Queue";
+}
+
+<h2 class="mb-4">📝 Review Queue</h2>
+
+@if (Model.PendingIngredients.Count == 0)
+{
+    <div class="alert alert-success">🎉 No ingredients pending review!</div>
+}
+else
+{
+    <p class="text-muted">@Model.PendingIngredients.Count ingredient(s) awaiting review.</p>
+
+    @foreach (var ing in Model.PendingIngredients)
+    {
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h5 class="card-title mb-1">@ing.Name</h5>
+                        <p class="text-muted mb-1">
+                            @ing.Category · Safety: @ing.SafetyRating/10
+                            @if (!string.IsNullOrEmpty(ing.CasNumber))
+                            {
+                                <span>· CAS: @ing.CasNumber</span>
+                            }
+                        </p>
+                        @if (ing.Synonyms.Count > 0)
+                        {
+                            <small class="text-muted">Synonyms: @string.Join(", ", ing.Synonyms)</small>
+                        }
+                        @if (ing.RiskTags.Count > 0)
+                        {
+                            <div class="mt-1">
+                                @foreach (var tag in ing.RiskTags)
+                                {
+                                    <span class="badge bg-secondary badge-risk me-1">@tag</span>
+                                }
+                            </div>
+                        }
+                    </div>
+                    <div class="d-flex gap-2">
+                        <form method="post" asp-page-handler="Approve">
+                            <input type="hidden" name="id" value="@ing.Id" />
+                            <button type="submit" class="btn btn-success btn-sm">✅ Approve</button>
+                        </form>
+                        <form method="post" asp-page-handler="Deprecate">
+                            <input type="hidden" name="id" value="@ing.Id" />
+                            <button type="submit" class="btn btn-outline-danger btn-sm">❌ Deprecate</button>
+                        </form>
+                        <a asp-page="/Admin/Ingredients/Edit" asp-route-id="@ing.Id"
+                           class="btn btn-outline-primary btn-sm">Edit</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}

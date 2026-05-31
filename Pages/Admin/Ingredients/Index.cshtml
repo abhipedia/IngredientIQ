@@ -1,0 +1,93 @@
+@page
+@model IngredientIQ.Pages.Admin.Ingredients.IndexModel
+@{
+    ViewData["Title"] = "Manage Ingredients";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>🧪 Ingredients</h2>
+    <a asp-page="/Admin/Ingredients/Create" class="btn btn-success">+ Add Ingredient</a>
+</div>
+
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-5">
+        <input asp-for="Search" class="form-control" placeholder="Search by name…" />
+    </div>
+    <div class="col-md-3">
+        <select asp-for="StatusFilter" class="form-select">
+            <option value="">All Statuses</option>
+            @foreach (var s in Enum.GetValues<IngredientIQ.Domain.Enums.IngredientStatus>())
+            {
+                <option value="@s">@s</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Filter</button>
+    </div>
+</form>
+
+@if (Model.Ingredients.Count == 0)
+{
+    <div class="alert alert-info">No ingredients found.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Safety</th>
+                    <th>Status</th>
+                    <th>Synonyms</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ing in Model.Ingredients)
+                {
+                    var safetyClass = ing.SafetyRating >= 7 ? "text-success" : ing.SafetyRating >= 4 ? "text-warning" : "text-danger";
+                    <tr>
+                        <td><strong>@ing.Name</strong></td>
+                        <td>@ing.Category</td>
+                        <td class="@safetyClass fw-bold">@ing.SafetyRating/10</td>
+                        <td>
+                            @{
+                                var badge = ing.Status switch
+                                {
+                                    IngredientIQ.Domain.Enums.IngredientStatus.Active => "bg-success",
+                                    IngredientIQ.Domain.Enums.IngredientStatus.Review => "bg-warning text-dark",
+                                    _ => "bg-secondary"
+                                };
+                            }
+                            <span class="badge @badge">@ing.Status</span>
+                        </td>
+                        <td><small class="text-muted">@string.Join(", ", ing.Synonyms.Take(3))@(ing.Synonyms.Count > 3 ? "…" : "")</small></td>
+                        <td>
+                            <a asp-page="/Admin/Ingredients/Edit" asp-route-id="@ing.Id"
+                               class="btn btn-sm btn-outline-primary">Edit</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav>
+            <ul class="pagination justify-content-center">
+                @for (var i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                        <a class="page-link" asp-page="/Admin/Ingredients/Index"
+                           asp-route-page="@i" asp-route-search="@Model.Search"
+                           asp-route-statusFilter="@Model.StatusFilter">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+}
