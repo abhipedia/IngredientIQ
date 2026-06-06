@@ -1,9 +1,6 @@
-# KleenScore - Complete Project Requirements & .NET Implementation Guide
+# IngredientIQ - Complete Project Requirements & .NET Implementation Guide
 
-**Document Version:** 1.0  
-**Date:** 2024  
-**Status:** Active Development  
-**Author:** Senior Business Analyst & Architect  
+
 
 ---
 
@@ -31,7 +28,7 @@
 
 ## Executive Summary
 
-**KleenScore** is a web-based platform that empowers consumers to make informed purchasing decisions by analyzing the ingredient list of any product. Users upload a photograph of a product's ingredient label, and the system uses Optical Character Recognition (OCR) and image processing to extract ingredients, match them against a curated database of "good" and "bad" ingredients, and return a **Kleen Score** (0–100) along with detailed insights.
+**IngredientIQ** is a web-based platform that empowers consumers to make informed purchasing decisions by analyzing the ingredient list of any product. Users upload a photograph of a product's ingredient label, and the system uses Optical Character Recognition (OCR) and image processing to extract ingredients, match them against a curated database of "good" and "bad" ingredients, and return a **Kleen Score** (0–100) along with detailed insights.
 
 **Product Vision:** Transform ingredient transparency into accessible, actionable insights for every consumer.
 
@@ -768,7 +765,7 @@ public class Scan : IAuditableEntity
     public string ImageUrl { get; set; }
     public string ExtractedText { get; set; }
     public decimal OcrConfidence { get; set; }
-    public int KleenScore { get; set; }
+    public int IngredientIQ { get; set; }
     public ScoreCategory ScoreCategory { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime LastUpdated { get; set; }
@@ -1285,10 +1282,10 @@ User Actions
 ### Solution Organization
 
 ```
-KleenScore.sln (Solution file)
+IngredientIQ.sln (Solution file)
 │
 ├── src/
-│   ├── KleenScore.Api/                              [API Entry Point]
+│   ├── IngredientIQ.Api/                              [API Entry Point]
 │   │   ├── Controllers/
 │   │   │   ├── UsersController.cs
 │   │   │   ├── ScansController.cs
@@ -1303,9 +1300,9 @@ KleenScore.sln (Solution file)
 │   │   ├── appsettings.json
 │   │   ├── appsettings.Development.json
 │   │   ├── appsettings.Production.json
-│   │   └── KleenScore.Api.csproj
+│   │   └── IngredientIQ.Api.csproj
 │   │
-│   ├── KleenScore.Application/                      [Business Logic & CQRS]
+│   ├── IngredientIQ.Application/                      [Business Logic & CQRS]
 │   │   ├── Features/
 │   │   │   ├── Auth/
 │   │   │   │   ├── Commands/
@@ -1389,9 +1386,9 @@ KleenScore.sln (Solution file)
 │   │   ├── Mappings/
 │   │   │   └── MappingProfile.cs                    [AutoMapper profiles]
 │   │   │
-│   │   └── KleenScore.Application.csproj
+│   │   └── IngredientIQ.Application.csproj
 │   │
-│   ├── KleenScore.Domain/                           [Core Domain & Entities]
+│   ├── IngredientIQ.Domain/                           [Core Domain & Entities]
 │   │   ├── Entities/
 │   │   │   ├── User.cs
 │   │   │   ├── Scan.cs
@@ -1419,11 +1416,11 @@ KleenScore.sln (Solution file)
 │   │   ├── Constants/
 │   │   │   └── DomainConstants.cs
 │   │   │
-│   │   └── KleenScore.Domain.csproj
+│   │   └── IngredientIQ.Domain.csproj
 │   │
-│   ├── KleenScore.Infrastructure/                   [EF Core, External Services]
+│   ├── IngredientIQ.Infrastructure/                   [EF Core, External Services]
 │   │   ├── Persistence/
-│   │   │   ├── KleenScoreDbContext.cs               [EF Core DbContext]
+│   │   │   ├── IngredientIQDbContext.cs               [EF Core DbContext]
 │   │   │   ├── Repositories/
 │   │   │   │   ├── GenericRepository.cs             [Generic repository implementation]
 │   │   │   │   ├── UserRepository.cs
@@ -1460,9 +1457,9 @@ KleenScore.sln (Solution file)
 │   │   │
 │   │   ├── DependencyInjection.cs                   [Register infrastructure services]
 │   │   ├── appsettings.Infrastructure.json
-│   │   └── KleenScore.Infrastructure.csproj
+│   │   └── IngredientIQ.Infrastructure.csproj
 │   │
-│   └── KleenScore.Shared/                           [Shared Utilities & DTOs]
+│   └── IngredientIQ.Shared/                           [Shared Utilities & DTOs]
 │       ├── Responses/
 │       │   ├── ApiResponse.cs                       [Generic API response wrapper]
 │       │   ├── ErrorResponse.cs
@@ -1479,10 +1476,10 @@ KleenScore.sln (Solution file)
 │       │   ├── JwtTokenGenerator.cs
 │       │   ├── PasswordHasher.cs
 │       │   └── DateTimeProvider.cs
-│       └── KleenScore.Shared.csproj
+│       └── IngredientIQ.Shared.csproj
 │
 ├── tests/
-│   ├── KleenScore.UnitTests/
+│   ├── IngredientIQ.UnitTests/
 │   │   ├── Features/
 │   │   │   ├── AuthTests/
 │   │   │   │   ├── RegisterUserCommandHandlerTests.cs
@@ -1506,9 +1503,9 @@ KleenScore.sln (Solution file)
 │   │   │   ├── TestDataFixture.cs
 │   │   │   └── AutoMockerFixture.cs
 │   │   ├── GlobalUsings.cs
-│   │   └── KleenScore.UnitTests.csproj
+│   │   └── IngredientIQ.UnitTests.csproj
 │   │
-│   └── KleenScore.IntegrationTests/
+│   └── IngredientIQ.IntegrationTests/
 │       ├── Features/
 │       │   ├── AuthTests/
 │       │   │   ├── UserRegistrationIntegrationTests.cs
@@ -1529,7 +1526,7 @@ KleenScore.sln (Solution file)
 │       ├── Setup/
 │       │   └── TestStartup.cs
 │       ├── GlobalUsings.cs
-│       └── KleenScore.IntegrationTests.csproj
+│       └── IngredientIQ.IntegrationTests.csproj
 │
 ├── docs/
 │   ├── ARCHITECTURE.md
@@ -1549,7 +1546,7 @@ KleenScore.sln (Solution file)
 ├── .gitignore
 ├── README.md
 ├── LICENSE
-└── KleenScore.sln
+└── IngredientIQ.sln
 ```
 
 ---
@@ -1563,28 +1560,28 @@ KleenScore.sln (Solution file)
 cd C:\Users\sinhaa19\source\repos\Kleen\ Label\ AI
 
 # Create solution
-dotnet new sln -n KleenScore
+dotnet new sln -n IngredientIQ
 
 # Create Domain project
-dotnet new classlib -n KleenScore.Domain -o src/KleenScore.Domain -f net8.0
+dotnet new classlib -n IngredientIQ.Domain -o src/IngredientIQ.Domain -f net8.0
 
 # Create Application project
-dotnet new classlib -n KleenScore.Application -o src/KleenScore.Application -f net8.0
+dotnet new classlib -n IngredientIQ.Application -o src/IngredientIQ.Application -f net8.0
 
 # Create Infrastructure project
-dotnet new classlib -n KleenScore.Infrastructure -o src/KleenScore.Infrastructure -f net8.0
+dotnet new classlib -n IngredientIQ.Infrastructure -o src/IngredientIQ.Infrastructure -f net8.0
 
 # Create Shared project
-dotnet new classlib -n KleenScore.Shared -o src/KleenScore.Shared -f net8.0
+dotnet new classlib -n IngredientIQ.Shared -o src/IngredientIQ.Shared -f net8.0
 
 # Create API project
-dotnet new webapi -n KleenScore.Api -o src/KleenScore.Api -f net8.0
+dotnet new webapi -n IngredientIQ.Api -o src/IngredientIQ.Api -f net8.0
 
 # Create Unit Tests project
-dotnet new xunit -n KleenScore.UnitTests -o tests/KleenScore.UnitTests -f net8.0
+dotnet new xunit -n IngredientIQ.UnitTests -o tests/IngredientIQ.UnitTests -f net8.0
 
 # Create Integration Tests project
-dotnet new xunit -n KleenScore.IntegrationTests -o tests/KleenScore.IntegrationTests -f net8.0
+dotnet new xunit -n IngredientIQ.IntegrationTests -o tests/IngredientIQ.IntegrationTests -f net8.0
 ```
 
 ### Step 2: Add Projects to Solution
@@ -1593,40 +1590,40 @@ dotnet new xunit -n KleenScore.IntegrationTests -o tests/KleenScore.IntegrationT
 cd C:\Users\sinhaa19\source\repos\Kleen\ Label\ AI
 
 # Add all projects to solution
-dotnet sln add src/KleenScore.Domain
-dotnet sln add src/KleenScore.Application
-dotnet sln add src/KleenScore.Infrastructure
-dotnet sln add src/KleenScore.Shared
-dotnet sln add src/KleenScore.Api
-dotnet sln add tests/KleenScore.UnitTests
-dotnet sln add tests/KleenScore.IntegrationTests
+dotnet sln add src/IngredientIQ.Domain
+dotnet sln add src/IngredientIQ.Application
+dotnet sln add src/IngredientIQ.Infrastructure
+dotnet sln add src/IngredientIQ.Shared
+dotnet sln add src/IngredientIQ.Api
+dotnet sln add tests/IngredientIQ.UnitTests
+dotnet sln add tests/IngredientIQ.IntegrationTests
 ```
 
 ### Step 3: Setup Project References
 
 ```bash
 # Application layer references Domain & Shared
-cd src/KleenScore.Application
-dotnet add reference ../KleenScore.Domain ../KleenScore.Shared
+cd src/IngredientIQ.Application
+dotnet add reference ../IngredientIQ.Domain ../IngredientIQ.Shared
 cd ../..
 
 # Infrastructure layer references Domain, Application & Shared
-cd src/KleenScore.Infrastructure
-dotnet add reference ../KleenScore.Domain ../KleenScore.Application ../KleenScore.Shared
+cd src/IngredientIQ.Infrastructure
+dotnet add reference ../IngredientIQ.Domain ../IngredientIQ.Application ../IngredientIQ.Shared
 cd ../..
 
 # API layer references all layers
-cd src/KleenScore.Api
-dotnet add reference ../KleenScore.Domain ../KleenScore.Application ../KleenScore.Infrastructure ../KleenScore.Shared
+cd src/IngredientIQ.Api
+dotnet add reference ../IngredientIQ.Domain ../IngredientIQ.Application ../IngredientIQ.Infrastructure ../IngredientIQ.Shared
 cd ../..
 
 # Test projects
-cd tests/KleenScore.UnitTests
-dotnet add reference ../../src/KleenScore.Domain ../../src/KleenScore.Application ../../src/KleenScore.Infrastructure
+cd tests/IngredientIQ.UnitTests
+dotnet add reference ../../src/IngredientIQ.Domain ../../src/IngredientIQ.Application ../../src/IngredientIQ.Infrastructure
 cd ../..
 
-cd tests/KleenScore.IntegrationTests
-dotnet add reference ../../src/KleenScore.Domain ../../src/KleenScore.Application ../../src/KleenScore.Infrastructure ../../src/KleenScore.Api
+cd tests/IngredientIQ.IntegrationTests
+dotnet add reference ../../src/IngredientIQ.Domain ../../src/IngredientIQ.Application ../../src/IngredientIQ.Infrastructure ../../src/IngredientIQ.Api
 cd ../..
 ```
 
@@ -1634,7 +1631,7 @@ cd ../..
 
 ```bash
 # --- API Project Packages ---
-cd src/KleenScore.Api
+cd src/IngredientIQ.Api
 
 # API Documentation & Swagger
 dotnet add package Swashbuckle.AspNetCore --version 6.4.0
@@ -1652,7 +1649,7 @@ dotnet add package Microsoft.Extensions.Configuration.Json --version 8.0.0
 cd ../..
 
 # --- Application Project Packages ---
-cd src/KleenScore.Application
+cd src/IngredientIQ.Application
 
 # CQRS Pattern
 dotnet add package MediatR --version 12.1.1
@@ -1669,7 +1666,7 @@ dotnet add package AutoMapper.Extensions.Microsoft.DependencyInjection --version
 cd ../..
 
 # --- Infrastructure Project Packages ---
-cd src/KleenScore.Infrastructure
+cd src/IngredientIQ.Infrastructure
 
 # Entity Framework Core
 dotnet add package Microsoft.EntityFrameworkCore --version 8.0.0
@@ -1699,12 +1696,12 @@ dotnet add package FuzzySharp --version 1.4.1
 cd ../..
 
 # --- Shared Project Packages ---
-cd src/KleenScore.Shared
+cd src/IngredientIQ.Shared
 # Usually minimal - shared by other projects
 cd ../..
 
 # --- Unit Tests Packages ---
-cd tests/KleenScore.UnitTests
+cd tests/IngredientIQ.UnitTests
 
 dotnet add package xunit --version 2.6.4
 dotnet add package xunit.runner.visualstudio --version 2.5.4
@@ -1715,7 +1712,7 @@ dotnet add package Bogus --version 35.4.1
 cd ../..
 
 # --- Integration Tests Packages ---
-cd tests/KleenScore.IntegrationTests
+cd tests/IngredientIQ.IntegrationTests
 
 dotnet add package xunit --version 2.6.4
 dotnet add package xunit.runner.visualstudio --version 2.5.4
@@ -1845,7 +1842,7 @@ dotnet test
 
 **End of Document**
 
-This comprehensive guide provides the complete blueprint for implementing KleenScore MVP using .NET 8, applying SOLID principles, clean architecture, and industry best practices.
+This comprehensive guide provides the complete blueprint for implementing IngredientIQ MVP using .NET 8, applying SOLID principles, clean architecture, and industry best practices.
 
 For questions or clarifications, please contact: [Project Lead Contact]
 
