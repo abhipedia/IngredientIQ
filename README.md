@@ -584,7 +584,6 @@ dotnet run -- --urls=https://localhost:7003
 ## 📚 Documentation
 
 - **[IMPLEMENTATION_PLAN.md](./Architecture/IMPLEMENTATION_PLAN.md)** — Phase-by-phase development breakdown
-- **[KLEENSCORE_COMPLETE_PRD.md](./Architecture/KLEENSCORE_COMPLETE_PRD.md)** — Full product requirements & business context
 - **[API Documentation](#)** — Swagger docs available at `/swagger` when running locally
 
 ---
@@ -632,21 +631,21 @@ This project is licensed under the **MIT License** — see [LICENSE](LICENSE) fi
 
 ## 🎯 Roadmap
 
-### Phase 2 (Q2 2026)
+### Phase 2 
 - [ ] Barcode scanning integration
 - [ ] Product comparison tool
 - [ ] Advanced user dashboard with trends
 - [ ] Email notifications for saved products
 - [ ] API for third-party integrations
 
-### Phase 3 (Q3 2026)
+### Phase 3 
 - [ ] Native mobile apps (iOS & Android)
 - [ ] Multi-language support
 - [ ] ML-powered ingredient recommendations
 - [ ] Brand partnerships & affiliate links
 - [ ] Blockchain verification (aspirational)
 
-### Phase 4+ (Q4 2026+)
+### Phase 4+ 
 - [ ] Advanced analytics & reporting
 - [ ] Community ingredient reviews
 - [ ] Integration with health platforms (Apple Health, Google Fit)
